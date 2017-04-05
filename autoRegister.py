@@ -81,7 +81,7 @@ class RegPHPWind(object):
         page = self.__session.get(self.__siteURL + self.__center).text
         soup = BeautifulSoup(page, 'html.parser')
         verify_script = soup.find_all('script')[3].text
-        #print(verify_script)
+        print(verify_script)
         verify_hash = verify_script.splitlines()[2].split('\'')[1]
         print(verify_hash)
         punch = soup.find(id='punch')['onclick']
@@ -97,5 +97,7 @@ class RegPHPWind(object):
 
 
 if __name__ == '__main__':
-    test = RegPHPWind(test_site, username, password)
+    with open('site.info', 'rt') as info:
+        lines = [line.rstrip('\n') for line in info]
+    test = RegPHPWind(*lines)
     test.Run()
