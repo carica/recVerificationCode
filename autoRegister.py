@@ -81,19 +81,22 @@ class RegPHPWind(object):
         page = self.__session.get(self.__siteURL + self.__center).text
         soup = BeautifulSoup(page, 'html.parser')
         verify_script = soup.find_all('script')[3].text
-        print(verify_script)
+        # print(verify_script)
         verify_hash = verify_script.splitlines()[2].split('\'')[1]
         print(verify_hash)
-        punch = soup.find(id='punch')['onclick']
-        print(punch)
+        punch = soup.find(id='punch')
+        if punch is not None:
+            print(punch['onclick'])
 
-        post_info = {
-        'action': 'punch',
-        'verify': verify_hash,
-        'step': '2'
-        }
-        res = self.__session.post(mission_url, data=post_info, headers=headers, verify=True).text
-        print(res)
+            post_info = {
+                'action': 'punch',
+                'verify': verify_hash,
+                'step': '2'
+            }
+            res = self.__session.post(mission_url, data=post_info, headers=headers, verify=True).text
+            print(res)
+        else:
+            print('already registered!')
 
 
 if __name__ == '__main__':
