@@ -56,24 +56,26 @@ class RegPHPWind(object):
     def Run(self):
         page = self.__session.get(self.__siteURL + self.__login).text
         soup = BeautifulSoup(page, 'html.parser')
-        imageURL = soup.find(attrs = {'id':'ckquestion'})['src']
-        verifyImage = self.__session.get(self.__siteURL + '/%s'%imageURL).content
-        # with open('a.png', 'wb') as img:
-        #     img.write(verifyImage)
-        result = self.getVerificationCode(BytesIO(verifyImage))
-        print(result)
-
+        ckquestion = soup.find(attrs = {'id':'ckquestion'})
         verify_value = soup.find(attrs = {'name':'verify'})['value']
-
         post_info = {
             'pwuser': self.__username,
             'pwpwd': self.__password,
             'verify': verify_value,
             'step': '2',
             'qkey': '-1',
-            'qanswer': result,
+            #'qanswer': result,
             'jumpurl': self.__siteURL,
         }
+
+        if ckquestion is not None:
+            imageURL = ckquestion['src']
+            verifyImage = self.__session.get(self.__siteURL + '/%s'%imageURL).content
+            # with open('a.png', 'wb') as img:
+            #     img.write(verifyImage)
+            result = self.getVerificationCode(BytesIO(verifyImage))
+            post_info['qanswer'] = result
+            print(result)
 
         resp = self.__session.post(self.__siteURL + self.__login, data=post_info)
         # print(resp.text)
