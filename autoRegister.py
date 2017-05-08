@@ -27,6 +27,15 @@ class RegPHPWind(object):
         }
         self.__session = requests.Session()
 
+    """compute verification code according to equation given by the image
+    
+    The ckquestion plugin for phpWind 7.5 turns an equation of add or substraction operation to an image.
+    Its result must be between [0,99].
+    Tesseract-ocr recognizes the plus operator correctly. The minus operator, however, is recognized as '7'.
+    Therefore, we shall look for '7' in the string and try to replace it with '-' and see if the result is positive.
+    It is possible that there are multiple '7's in the equation and the 2nd one is'nt '-'.
+    In such case, the result is not correct.
+    """
     def getVerificationCode(self, image):
         im = Image.open(image)
         im = im.convert('L')
