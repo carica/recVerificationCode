@@ -14,3 +14,7 @@ Pillow
 
 tesserocr
 
+## PHP packages:
+GuzzleHttp
+
+PHP-xml
