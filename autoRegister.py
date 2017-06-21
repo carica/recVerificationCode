@@ -104,14 +104,14 @@ class RegPHPWind(object):
                 'verify': verify_hash,
                 'step': '2'
             }
-            res = self.__session.post(mission_url, data=post_info, headers=headers, verify=True).text
-            print(res)
+            res = self.__session.post(self.__siteURL + self.__mission, data=post_info).text
         else:
-            print('already registered!')
+            res = 'already registered!'
+        return res
 
 
 if __name__ == '__main__':
     with open('site.info', 'rt') as info:
         lines = [line.rstrip('\n') for line in info]
     test = RegPHPWind(*lines)
-    test.Run()
+    print(test.Run())
