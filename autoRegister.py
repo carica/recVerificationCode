@@ -76,7 +76,7 @@ class RegPHPWind(object):
             #'qanswer': result,
             'jumpurl': self.__siteURL,
         }
-        print(post_info)
+        # print(post_info)
         
         if ckquestion is not None:
             imageURL = ckquestion['src']
@@ -88,11 +88,13 @@ class RegPHPWind(object):
             print(result)
 
         resp = self.__session.post(self.__siteURL + self.__login, data=post_info)
-        print(resp.text)
+        # print(resp.text)
 
         page = self.__session.get(self.__siteURL + self.__center).text
         soup = BeautifulSoup(page, 'html.parser')
         verify_script = soup.find_all('script')[3].text
+        if 'login' in verify_script:
+            return None
         # print(verify_script)
         verify_hash = verify_script.splitlines()[2].split('\'')[1]
         print(verify_hash)
@@ -115,4 +117,10 @@ if __name__ == '__main__':
     with open('site.info', 'rt') as info:
         lines = [line.rstrip('\n') for line in info]
     test = RegPHPWind(*lines)
-    print(test.Run())
+    rm93 = None
+    i = 0
+    trials = 3
+    while rm93 is None and i < trials:
+        rm93 = test.Run()
+        i = i + 1
+    print(rm93)
