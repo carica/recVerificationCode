@@ -76,7 +76,8 @@ class RegPHPWind(object):
             #'qanswer': result,
             'jumpurl': self.__siteURL,
         }
-
+        print(post_info)
+        
         if ckquestion is not None:
             imageURL = ckquestion['src']
             verifyImage = self.__session.get(self.__siteURL + '/%s'%imageURL).content
@@ -87,7 +88,7 @@ class RegPHPWind(object):
             print(result)
 
         resp = self.__session.post(self.__siteURL + self.__login, data=post_info)
-        # print(resp.text)
+        print(resp.text)
 
         page = self.__session.get(self.__siteURL + self.__center).text
         soup = BeautifulSoup(page, 'html.parser')
