@@ -2,7 +2,7 @@
 composer.lock
 .DS_Store
 site.info
-
+*.pickle
 #sublime
 *.sublime-*
 

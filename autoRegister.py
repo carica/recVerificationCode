@@ -8,6 +8,8 @@ import sys
 import requests
 import time
 import chardet
+import pickle
+import os
 
 class RegPHPWind(object):
     def __init__(self, siteURL, username, password):
@@ -26,6 +28,13 @@ class RegPHPWind(object):
         "Origin" : self.__siteURL + self.__homepage
         }
         self.__session = requests.Session()
+        self.__cookie_filename = "./cookie.pickle"
+
+        self.__cookie = None
+        if os.path.exists(self.__cookie_filename):
+            with open(self.__cookie_filename, "rb") as f:
+                self.__cookie = pickle.load(f)
+
 
     """compute verification code according to equation given by the image
     
@@ -63,39 +72,48 @@ class RegPHPWind(object):
         return result
 
     def Run(self):
-        page = self.__session.get(self.__siteURL + self.__login).text
-        soup = BeautifulSoup(page, 'html.parser')
-        ckquestion = soup.find(attrs = {'id':'ckquestion'})
-        verify_value = soup.find(attrs = {'name':'verify'})['value']
-        post_info = {
-            'pwuser': self.__username,
-            'pwpwd': self.__password,
-            'verify': verify_value,
-            'step': '2',
-            'qkey': '-1',
-            #'qanswer': result,
-            'jumpurl': self.__siteURL,
-        }
-        # print(post_info)
-        
-        if ckquestion is not None:
-            imageURL = ckquestion['src']
-            verifyImage = self.__session.get(self.__siteURL + '/%s'%imageURL).content
-            # with open('a.png', 'wb') as img:
-            #     img.write(verifyImage)
-            result = self.getVerificationCode(BytesIO(verifyImage))
-            post_info['qanswer'] = result
-            print(result)
+        if self.__cookie is not None:
+            self.__session.cookies = self.__cookie
+            print('cookies loaded.')
+        else:
+            page = self.__session.get(self.__siteURL + self.__login).text
+            soup = BeautifulSoup(page, 'html.parser')
+            ckquestion = soup.find(attrs = {'id':'ckquestion'})
+            verify_value = soup.find(attrs = {'name':'verify'})['value']
+            post_info = {
+                'pwuser': self.__username,
+                'pwpwd': self.__password,
+                'verify': verify_value,
+                'step': '2',
+                'qkey': '-1',
+                #'qanswer': result,
+                'jumpurl': self.__siteURL,
+            }
+            # print(post_info)
+            
+            if ckquestion is not None:
+                imageURL = ckquestion['src']
+                verifyImage = self.__session.get(self.__siteURL + '/%s'%imageURL).content
+                # with open('a.png', 'wb') as img:
+                #     img.write(verifyImage)
+                result = self.getVerificationCode(BytesIO(verifyImage))
+                post_info['qanswer'] = result
+                print(result)
 
-        resp = self.__session.post(self.__siteURL + self.__login, data=post_info)
-        # print(resp.text)
+            resp = self.__session.post(self.__siteURL + self.__login, data=post_info)
+            # print(resp.text)
 
         page = self.__session.get(self.__siteURL + self.__center).text
         soup = BeautifulSoup(page, 'html.parser')
         verify_script = soup.find_all('script')[3].text
-        if 'login' in verify_script:
-            return None
         # print(verify_script)
+        if 'login' in verify_script:
+            if self.__cookie is not None:
+                os.remove(self.__cookie_filename)
+            return None
+        else:
+            with open(self.__cookie_filename, "wb") as f:
+                pickle.dump(self.__session.cookies, f)
         verify_hash = verify_script.splitlines()[2].split('\'')[1]
         print(verify_hash)
         punch = soup.find(id='punch')
