@@ -137,8 +137,10 @@ if __name__ == '__main__':
     test = RegPHPWind(*lines)
     rm93 = None
     i = 0
-    trials = 3
+    trials = 3 #for some reason, login attempt will fail. let's try 3 times before call it.
     while rm93 is None and i < trials:
         rm93 = test.Run()
         i = i + 1
-    print(rm93)
+    if rm93 is None:
+        #send message to bot
+    #print(rm93)
